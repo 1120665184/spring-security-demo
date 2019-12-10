@@ -23,7 +23,7 @@ public interface Constants {
         /**
          * 请求头认证token信息
          */
-        String AUTHENTICATION_HEADER_NAME = "authorization";
+        String AUTHENTICATION_HEADER_NAME = "Authorization";
 
     }
 

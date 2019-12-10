@@ -1,20 +1,15 @@
 package top.quyq.jwtdemo.security.filter;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -77,9 +72,14 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 faild = new InsufficientAuthenticationException("Token 不能为空");
             }
 
-        }catch (AuthenticationException e){
+        }
+        catch (ExpiredJwtException e){
+            faild = new BadCredentialsException("Token 已超时");
+        }
+        catch (AuthenticationException e){
           faild = e;
         } catch (Exception e){
+            System.out.println(e);
             faild = new InternalAuthenticationServiceException("Token 解析错误");
         }
 

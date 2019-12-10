@@ -5,11 +5,9 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import top.quyq.jwtdemo.security.filter.UsernameAndPasswordLoginFilter;
-import top.quyq.jwtdemo.security.handler.LoginFailureHandler;
-import top.quyq.jwtdemo.security.handler.LoginSuccessHandler;
 
 /**
  * 组装配置 登陆filter
@@ -37,7 +35,7 @@ public class UsernameAndPasswordLoginConfigurer<T extends UsernameAndPasswordLog
 
         UsernameAndPasswordLoginFilter filter = postProcess(authFilter);
 
-        http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(filter, LogoutFilter.class);
 
     }
 

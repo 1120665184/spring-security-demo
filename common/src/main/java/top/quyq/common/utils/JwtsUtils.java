@@ -45,6 +45,7 @@ public final class JwtsUtils {
                 .setHeader(header)
                 .claim("authorities",sb.toString())
                 .setSubject(authentication.getName())
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + Constants.Token.ACTIVE_MILLIS))
                 .signWith(SignatureAlgorithm.HS512, Constants.Token.SIGNING_KEY)
                 .compact();

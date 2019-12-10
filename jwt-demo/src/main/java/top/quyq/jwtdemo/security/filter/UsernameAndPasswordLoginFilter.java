@@ -34,8 +34,14 @@ public class UsernameAndPasswordLoginFilter extends AbstractAuthenticationProces
      */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
-        User user = JsonUtils.getNonFilterObjectMapperInstance()
-                .readValue(request.getInputStream(),User.class);
+        User user = null;
+
+        try {
+            user = JsonUtils.getNonFilterObjectMapperInstance()
+                    .readValue(request.getInputStream(),User.class);
+        }catch (Exception e){
+            throw new BadCredentialsException("缺少必要参数");
+        }
 
         if(!StringUtils.hasText(user.getUsername()) ||
                 !StringUtils.hasText(user.getPassword())){

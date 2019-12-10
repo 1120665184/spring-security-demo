@@ -19,8 +19,6 @@ buildscript {
 }
 
 allprojects {
-    //应用插件
-    apply plugin: 'java'
     //设置group id
     group 'top.quyq'
 
@@ -40,7 +38,8 @@ allprojects {
 
 // 所有子项目的通用配置
 subprojects {
-
+    //应用插件
+    apply plugin: 'java'
     apply plugin: 'org.springframework.boot'
 
     //用于spring boot 版本jar依赖

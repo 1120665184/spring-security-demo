@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class Result implements Serializable {
 
+    private static final long serialVersionUID = 2657432395754169065L;
     private Integer code;
 
     private String msg;
@@ -93,4 +94,16 @@ public class Result implements Serializable {
 
     }
 
+
+    public Integer getCode() {
+        return code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public Object getData() {
+        return data;
+    }
 }

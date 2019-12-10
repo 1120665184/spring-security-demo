@@ -1,6 +1,7 @@
 package top.quyq.jwtdemo.security.service;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,12 +20,7 @@ public class LoginUserService implements UserDetailsService {
 
         List<GrantedAuthority> authorities= new ArrayList<GrantedAuthority>(){
             {
-                add(new GrantedAuthority() {
-                    @Override
-                    public String getAuthority() {
-                        return "ADMIN";
-                    }
-                });
+                add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             }
         };
 

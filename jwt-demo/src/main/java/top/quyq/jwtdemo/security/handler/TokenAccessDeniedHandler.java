@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 /**
  * 授权不通过调用执行器
  */
-public class AccessDeniedHandler implements org.springframework.security.web.access.AccessDeniedHandler {
+public class TokenAccessDeniedHandler implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         response.setContentType("application/json;charset=utf-8");

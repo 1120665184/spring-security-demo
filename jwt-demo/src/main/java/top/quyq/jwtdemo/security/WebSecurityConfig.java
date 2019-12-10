@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -20,6 +22,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import top.quyq.common.constants.Constants;
+import top.quyq.jwtdemo.security.configure.TokenAuthenticationConfigurer;
+import top.quyq.jwtdemo.security.configure.UsernameAndPasswordLoginConfigurer;
 import top.quyq.jwtdemo.security.filter.TokenAuthenticationFilter;
 import top.quyq.jwtdemo.security.filter.OptionsRequestFilter;
 import top.quyq.jwtdemo.security.handler.*;
@@ -44,16 +49,24 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.httpBasic().authenticationEntryPoint(new NotLoginAuthenticationEntryPoint())
+        http.httpBasic().authenticationEntryPoint(authenticationEntryPoint())
                 .and()
                 .authorizeRequests()
-                .antMatchers("/hello").anonymous()
+                .antMatchers("/hello").authenticated()
                 .antMatchers("/admin").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST,"/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                //.addFilterBefore(new UsernameAndPasswordLoginFilter("/login",authenticationManager()), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new TokenAuthenticationFilter(),UsernamePasswordAuthenticationFilter.class)
+                //添加登录filter
+                .apply(new UsernameAndPasswordLoginConfigurer<>("/login"))
+                .successHandler(loginSuccessHandler())
+                .failureHandler(loginFailureHandler())
+                .and()
+                //添加token filter
+                .apply(new TokenAuthenticationConfigurer<>())
+                .successHandler(tokenAuthenticationHandler())
+                .failureHandler(loginFailureHandler())
+                .and()
                 .csrf().disable()
                 .sessionManagement().disable()
                 .formLogin().disable()
@@ -61,10 +74,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .headers().addHeaderWriter(new StaticHeadersWriter(Arrays.asList(
                 new Header("Access-control-Allow-Origin","*"),
-                new Header("Access-Control-Expose-Headers","Authorization"))))
+                new Header("Access-Control-Expose-Headers",Constants.Token.AUTHENTICATION_HEADER_NAME))))
                 .and()
                 .addFilterAfter(new OptionsRequestFilter(), CorsFilter.class);
-        http.exceptionHandling().accessDeniedHandler(new AccessDeniedHandler());
+        http.exceptionHandling().accessDeniedHandler(tokenAccessDeniedHandler());
     }
 
     @Bean
@@ -73,7 +86,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","HEAD", "OPTION"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader(Constants.Token.AUTHENTICATION_HEADER_NAME);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -111,6 +124,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationFailureHandler loginFailureHandler(){
         return new LoginFailureHandler();
+    }
+
+    @Bean
+    public AccessDeniedHandler tokenAccessDeniedHandler(){
+        return new TokenAccessDeniedHandler();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint(){
+        return new NotLoginAuthenticationEntryPoint();
     }
 
 }
