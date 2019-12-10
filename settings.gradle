@@ -1,1 +1,4 @@
 rootProject.name = 'spring-security-demo'
+include 'jwt-demo'
+include 'common'
+

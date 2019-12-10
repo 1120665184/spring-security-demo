@@ -1,29 +1,84 @@
-plugins {
-    id 'org.springframework.boot' version '2.2.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-    id 'java'
-}
 
-group = 'top.quyq'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
 
-repositories {
-    mavenCentral()
-}
+//应用于gradle 编译
+buildscript {
+    apply from:"config.gradle"
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compile('org.apache.commons:commons-lang3:3.8')
-    compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+    repositories {
+        mavenLocal()
+        maven{ url 'https://maven.aliyun.com/repository/public/' }
 
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
-        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        //maven 中央仓库
+        mavenCentral()
     }
-    testImplementation 'org.springframework.security:spring-security-test'
+
+    dependencies {
+        // 指定gradle spring boot plugin 版本 用于spring boot 版本依赖控制
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
 }
 
-test {
-    useJUnitPlatform()
+allprojects {
+    //应用插件
+    apply plugin: 'java'
+    //设置group id
+    group 'top.quyq'
+
+    //设置版本
+    version '1.0.0'
+
+    description 'projec'
+
+    //指定中央仓库 项目使用
+    repositories {
+        mavenLocal()
+        maven{ url 'https://maven.aliyun.com/repository/public/' }
+        //maven 中央仓库
+        mavenCentral()
+    }
 }
+
+// 所有子项目的通用配置
+subprojects {
+
+    apply plugin: 'org.springframework.boot'
+
+    //用于spring boot 版本jar依赖
+    apply plugin: 'io.spring.dependency-management'
+
+
+
+    //指定jdk版本  编译环境
+    sourceCompatibility = 1.8
+    //运行环境
+    targetCompatibility = 1.8
+
+
+    //依赖
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        compile('org.apache.commons:commons-lang3:3.8')
+        compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
+        compile "org.projectlombok:lombok:${rootProject.lombok}"
+        annotationProcessor "org.projectlombok:lombok:${rootProject.lombok}"
+
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+        testImplementation 'org.springframework.security:spring-security-test'
+    }
+
+    //这里一定得要。在多模块下，不然编译失败，因为不会把信赖模块给打包。
+    /* jar {
+         enabled = true
+     }*/
+   /* bootJar {
+        baseName 'security-demo'
+        manifest {
+            attributes 'Start-Class':'top.quyq.Application'
+        }
+    }*/
+}
+

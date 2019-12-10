@@ -1,0 +1,5 @@
+ext {
+    springBootVersion = "2.2.1.RELEASE"
+    lombok = "1.18.2"
+
+}
