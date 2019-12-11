@@ -1,10 +1,7 @@
 package top.quyq.jwtdemo.security.filter;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 从 authorization  字段中获取 token，生成 UsernamePasswordAuthenticationToken
+ * 从 authorization  字段中获取 token，生成 JwtAuthenticationToken
  */
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
@@ -40,6 +37,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private AuthenticationSuccessHandler successHandler ;
     private AuthenticationFailureHandler failureHandler ;
     private List<RequestMatcher> permissiveRequestMatchers ;
+
+    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     private RequestHeaderRequestMatcher requestHeaderRequestMatcher;
 
@@ -52,11 +51,20 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-        //将没有带Token的请求信息放过
-        if(!this.requestHeaderRequestMatcher.matches(req)){
+        //将没有带Token的请求信息放过  如果为指定跳过的路径，则跳过
+        if(!this.requestHeaderRequestMatcher.matches(req) || permissiveRequest(req)){
+            SecurityContextHolder.clearContext();
             chain.doFilter(req,response);
             return;
         }
+
+        //将已经通过认证的信息放过
+       /* Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        if(Objects.nonNull(authentication)){
+            chain.doFilter(req,response);
+            return;
+        }*/
 
         Authentication authenInfo = null;
         AuthenticationException faild = null;
@@ -186,5 +194,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             objects.add(new AntPathRequestMatcher(url));
         }
         this.permissiveRequestMatchers = objects;
+    }
+
+    public AuthenticationTrustResolver getTrustResolver() {
+        return trustResolver;
+    }
+
+    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
+        this.trustResolver = trustResolver;
     }
 }

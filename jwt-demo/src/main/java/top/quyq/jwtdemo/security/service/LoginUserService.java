@@ -23,7 +23,6 @@ public class LoginUserService implements UserDetailsService {
                 add(new SimpleGrantedAuthority("ROLE_ADMIN"));
             }
         };
-
         user.setAuthorities(authorities);
         return user;
     }

@@ -25,7 +25,7 @@ allprojects {
     //设置版本
     version '1.0.0'
 
-    description 'projec'
+    description 'sucerity projec'
 
     //指定中央仓库 项目使用
     repositories {
@@ -70,9 +70,9 @@ subprojects {
     }
 
     //这里一定得要。在多模块下，不然编译失败，因为不会把信赖模块给打包。
-    /* jar {
+     jar {
          enabled = true
-     }*/
+     }
    /* bootJar {
         baseName 'security-demo'
         manifest {

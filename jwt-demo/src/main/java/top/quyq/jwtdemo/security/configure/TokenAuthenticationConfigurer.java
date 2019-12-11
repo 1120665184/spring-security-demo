@@ -1,6 +1,7 @@
 package top.quyq.jwtdemo.security.configure;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -28,6 +29,7 @@ public class TokenAuthenticationConfigurer<T extends TokenAuthenticationConfigur
     public void configure(B http) throws Exception {
         //设置manager
         authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+        authFilter.setTrustResolver(http.getSharedObject(AuthenticationTrustResolver.class));
         //将该过滤器添加到LogoutFilter之前
         TokenAuthenticationFilter filter = postProcess(authFilter);
         http.addFilterBefore(filter, LogoutFilter.class);
