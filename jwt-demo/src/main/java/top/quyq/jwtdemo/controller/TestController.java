@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-    @GetMapping("hello")
+    @GetMapping("/view/hello")
     public String hello(){
         return "hello jwt";
     }

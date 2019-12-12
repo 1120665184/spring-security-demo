@@ -5,6 +5,9 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.util.AntPathMatcher;
+import top.quyq.common.security.permission.PermissionBean;
+import top.quyq.common.security.permission.UrlBean;
+import top.quyq.common.security.service.AppMetadataSourceService;
 
 import java.util.*;
 
@@ -28,14 +31,14 @@ public class AppFilterInvocationSecurityMetadataSource implements FilterInvocati
 
         FilterInvocation fi = (FilterInvocation) object;
         String url = fi.getRequestUrl();
+        String method = fi.getHttpRequest().getMethod();
         Set<ConfigAttribute> setConfig = new LinkedHashSet<>();
 
-        Map<String, String> authorizationByUrl = service.getAuthorizationByUrl(url);
+        Map<UrlBean, String> authorizationByUrl = service.getAuthorizationByUrl(url,method);
 
         if(Objects.nonNull(authorizationByUrl)){
             authorizationByUrl.forEach((k,v) ->{
-                if(antPathMatcher.match(k,url))
-                    setConfig.addAll(SecurityConfig.createListFromCommaDelimitedString(v));
+                 setConfig.addAll(SecurityConfig.createListFromCommaDelimitedString(v));
             });
         }
         if(setConfig.size() == 0){
@@ -48,12 +51,14 @@ public class AppFilterInvocationSecurityMetadataSource implements FilterInvocati
 
     @Override
     public Collection<ConfigAttribute> getAllConfigAttributes() {
-        Map<String, String> appRoles = service.getAllAppAuthorizationData();
+
         Set<ConfigAttribute> setConfig = new LinkedHashSet<>();
+        Collection<PermissionBean> allPermission = service.getAllAppAuthorizationData();
 
+        String[] rolesAll = allPermission.stream().map(PermissionBean::getOwner)
+                .toArray(String[]::new);
 
-        appRoles.forEach((k,v) ->
-                setConfig.addAll(SecurityConfig.createListFromCommaDelimitedString(v)));
+        setConfig.addAll(SecurityConfig.createList(rolesAll));
 
         setConfig.addAll(baseMetadataSource.getAllConfigAttributes());
 
