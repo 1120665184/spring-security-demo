@@ -41,12 +41,14 @@ public final class JwtsUtils {
             }
         };
 
+        long nowDate = System.currentTimeMillis();
+
         String jwt = Jwts.builder()
                 .setHeader(header)
                 .claim("authorities",sb.toString())
                 .setSubject(authentication.getName())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + Constants.Token.ACTIVE_MILLIS))
+                .setIssuedAt(new Date(nowDate))
+                .setExpiration(new Date(nowDate + Constants.Token.ACTIVE_MILLIS))
                 .signWith(SignatureAlgorithm.HS512, Constants.Token.SIGNING_KEY)
                 .compact();
         return jwt;
