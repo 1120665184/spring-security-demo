@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * options请求直接返回 过滤器
+ */
 public class OptionsRequestFilter extends OncePerRequestFilter {
 
     @Override

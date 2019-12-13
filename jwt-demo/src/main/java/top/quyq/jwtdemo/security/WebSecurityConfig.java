@@ -1,5 +1,7 @@
 package top.quyq.jwtdemo.security;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -26,26 +28,35 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.header.Header;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import top.quyq.common.constants.Constants;
+import top.quyq.common.security.service.TestAppMetadataSourceService;
+import top.quyq.common.security.utils.SecurityUtils;
 import top.quyq.jwtdemo.security.configure.TokenAuthenticationConfigurer;
 import top.quyq.jwtdemo.security.configure.UsernameAndPasswordLoginConfigurer;
+import top.quyq.common.security.entity.SecurityConfigureBean;
 import top.quyq.jwtdemo.security.filter.OptionsRequestFilter;
 import top.quyq.jwtdemo.security.handler.*;
 import top.quyq.jwtdemo.security.metadataSource.AppFilterInvocationSecurityMetadataSource;
-import top.quyq.common.security.service.TestAppMetadataSourceService;
 import top.quyq.jwtdemo.security.provider.TokenAuthenticationProvider;
 import top.quyq.jwtdemo.security.service.LoginUserService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @EnableWebSecurity
+@EnableConfigurationProperties(SecurityConfigureBean.class)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private SecurityConfigureBean config;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -64,9 +75,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 //配置无需认证界面
-                .antMatchers(permitUrls()).permitAll()
+                .requestMatchers(permitUrls()).permitAll()
                 //配置匿名访问界面
-                .antMatchers(anonymousUrls()).anonymous()
+                .requestMatchers(anonymousUrls()).anonymous()
                 //未配置界面均得认证
                 .anyRequest().authenticated()
                 //重新设置MetadataSource，新增自定义权限
@@ -92,7 +103,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //设置token路径白名单
                 .permissiveRequestUrls(
                         Stream.of(anonymousUrls(),permitUrls()).flatMap(arr -> Arrays.asList(arr).stream())
-                                .toArray(String[]::new)
+                                .collect(Collectors.toList())
                 )
                 .and()
                 .csrf().disable()
@@ -117,10 +128,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      * @return
      */
     @Bean("anonymousUrls")
-    protected String[] anonymousUrls(){
-        return new String [] {
-
-        };
+    protected AntPathRequestMatcher[] anonymousUrls(){
+        List<String> anonymousUrls = config.getAnonymousUrls();
+        return SecurityUtils.createMatcher(anonymousUrls,config.getMethodUrlSplitSymbol());
     }
 
     /**
@@ -128,11 +138,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      * @return
      */
     @Bean("permitUrls")
-    protected String[] permitUrls(){
-        return new String [] {
-                "/login",
-                "/view/**"
-        };
+    protected AntPathRequestMatcher[] permitUrls(){
+        List<String> urls = config.getPermitUrls();
+        return SecurityUtils.createMatcher(urls,config.getMethodUrlSplitSymbol());
     }
 
     @Bean

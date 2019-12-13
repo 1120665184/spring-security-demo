@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -187,13 +188,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         return permissiveRequestMatchers;
     }
 
-    public void setPermissiveRequestMatchers(String[] urls) {
-        if(Objects.isNull(urls))    return;
-        ArrayList<RequestMatcher> objects = new ArrayList<>();
-        for(String url : urls){
-            objects.add(new AntPathRequestMatcher(url));
-        }
-        this.permissiveRequestMatchers = objects;
+    public void setPermissiveRequestMatchers(List<RequestMatcher> urls) {
+
+        this.permissiveRequestMatchers = urls;
     }
 
     public AuthenticationTrustResolver getTrustResolver() {

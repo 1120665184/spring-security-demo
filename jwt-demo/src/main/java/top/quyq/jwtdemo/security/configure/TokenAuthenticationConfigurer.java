@@ -7,7 +7,10 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import top.quyq.jwtdemo.security.filter.TokenAuthenticationFilter;
+
+import java.util.List;
 
 /**
  * 组装配置 token认证filter
@@ -36,7 +39,7 @@ public class TokenAuthenticationConfigurer<T extends TokenAuthenticationConfigur
     }
 
     //设置匿名用户可访问url
-    public TokenAuthenticationConfigurer<T, B> permissiveRequestUrls(String ... urls){
+    public TokenAuthenticationConfigurer<T, B> permissiveRequestUrls(List<RequestMatcher> urls){
         authFilter.setPermissiveRequestMatchers(urls);
         return this;
     }
