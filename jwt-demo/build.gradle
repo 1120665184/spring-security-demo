@@ -3,3 +3,10 @@ dependencies {
     implementation project(":common")
 }
 
+bootJar {
+    baseName 'security-demo'
+    manifest {
+        attributes 'Start-Class':'top.quyq.jwtdemo.JwtDemoApplication'
+    }
+}
+

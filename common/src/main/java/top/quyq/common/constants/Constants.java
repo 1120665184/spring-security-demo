@@ -17,9 +17,9 @@ public interface Constants {
         long REFRESH_MILLIS = 5 * 60 * 1000 ;
 
         /**
-         * 生成token私钥
+         * 生成token私钥 ,不可泄漏
          */
-        String SIGNING_KEY = "top.quyq";
+        String SIGNING_KEY = "top.quyq.784154581256454512";
         /**
          * 请求头认证token信息
          */

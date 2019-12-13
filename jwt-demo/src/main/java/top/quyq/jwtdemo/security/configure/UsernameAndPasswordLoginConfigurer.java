@@ -35,7 +35,7 @@ public class UsernameAndPasswordLoginConfigurer<T extends UsernameAndPasswordLog
 
         UsernameAndPasswordLoginFilter filter = postProcess(authFilter);
 
-        http.addFilterBefore(filter, LogoutFilter.class);
+        http.addFilterAfter(filter, LogoutFilter.class);
 
     }
 
