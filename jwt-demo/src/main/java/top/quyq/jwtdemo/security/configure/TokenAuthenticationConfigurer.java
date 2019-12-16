@@ -32,13 +32,12 @@ public class TokenAuthenticationConfigurer<T extends TokenAuthenticationConfigur
     public void configure(B http) throws Exception {
         //设置manager
         authFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        authFilter.setTrustResolver(http.getSharedObject(AuthenticationTrustResolver.class));
         //将该过滤器添加到LogoutFilter之前
         TokenAuthenticationFilter filter = postProcess(authFilter);
         http.addFilterBefore(filter, LogoutFilter.class);
     }
 
-    //设置匿名用户可访问url
+    //设置白名单用户可访问url
     public TokenAuthenticationConfigurer<T, B> permissiveRequestUrls(List<RequestMatcher> urls){
         authFilter.setPermissiveRequestMatchers(urls);
         return this;

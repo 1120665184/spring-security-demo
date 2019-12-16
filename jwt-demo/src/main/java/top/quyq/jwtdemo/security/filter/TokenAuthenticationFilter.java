@@ -1,13 +1,16 @@
 package top.quyq.jwtdemo.security.filter;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import org.springframework.security.authentication.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
@@ -21,15 +24,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * 从 authorization  字段中获取 token，生成 JwtAuthenticationToken
  */
-
+@Slf4j
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 
@@ -39,7 +40,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     private AuthenticationFailureHandler failureHandler ;
     private List<RequestMatcher> permissiveRequestMatchers ;
 
-    private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
     private RequestHeaderRequestMatcher requestHeaderRequestMatcher;
 
@@ -88,7 +88,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         catch (AuthenticationException e){
           faild = e;
         } catch (Exception e){
-            System.out.println(e);
+            log.debug(e.toString());
             faild = new InternalAuthenticationServiceException("Token 解析错误");
         }
 
@@ -193,11 +193,4 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         this.permissiveRequestMatchers = urls;
     }
 
-    public AuthenticationTrustResolver getTrustResolver() {
-        return trustResolver;
-    }
-
-    public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
-        this.trustResolver = trustResolver;
-    }
 }
